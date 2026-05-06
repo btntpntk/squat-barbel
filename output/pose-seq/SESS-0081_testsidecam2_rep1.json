@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "body_type": "asdf",
+        "height": "asdf",
+        "weight": "asdf",
+        "gender": "asdf",
+        "subject_id": "SESS-0081",
+        "pose_sequence_type": "testsidecam2",
+        "rep_number": 1
+    },
+    "pose_sequence": []
+}

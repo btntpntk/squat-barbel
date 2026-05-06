@@ -1,0 +1,6 @@
+nicegui>=1.4
+plotly>=5.18
+opencv-python>=4.9
+mediapipe>=0.10
+numpy>=1.26
+pyrealsense2>=2.55   # optional — comment out if no RealSense camera

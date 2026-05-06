@@ -1,0 +1,344 @@
+{
+    "metadata": {
+        "body_type": "s",
+        "height": "s",
+        "weight": "s",
+        "gender": "s",
+        "pose_sequence_type": "s",
+        "subject_id": "SESS-0010"
+    },
+    "pose_sequence": [
+        [
+            {
+                "index": 0,
+                "x_3d_meters": -0.10251136124134064,
+                "y_3d_meters": -0.690191388130188,
+                "z_3d_meters": 2.386000156402588,
+                "visibility": 0.9999204874038696,
+                "x_2d_normalized": 0.4577582776546478,
+                "y_2d_normalized": 0.13534016907215118,
+                "z_estimated_mediapipe": 0.2953653931617737
+            },
+            {
+                "index": 1,
+                "x_3d_meters": -0.12715351581573486,
+                "y_3d_meters": -0.7076010704040527,
+                "z_3d_meters": 2.4050002098083496,
+                "visibility": 0.999934196472168,
+                "x_2d_normalized": 0.448129266500473,
+                "y_2d_normalized": 0.12859898805618286,
+                "z_estimated_mediapipe": 0.2410770207643509
+            },
+            {
+                "index": 2,
+                "x_3d_meters": -0.14190736413002014,
+                "y_3d_meters": -0.7020108699798584,
+                "z_3d_meters": 2.386000156402588,
+                "visibility": 0.9999309182167053,
+                "x_2d_normalized": 0.44291168451309204,
+                "y_2d_normalized": 0.1290043145418167,
+                "z_estimated_mediapipe": 0.24113309383392334
+            },
+            {
+                "index": 3,
+                "x_3d_meters": -0.15314632654190063,
+                "y_3d_meters": -0.6993628740310669,
+                "z_3d_meters": 2.377000093460083,
+                "visibility": 0.9999356865882874,
+                "x_2d_normalized": 0.4381837248802185,
+                "y_2d_normalized": 0.12947887182235718,
+                "z_estimated_mediapipe": 0.24107682704925537
+            },
+            {
+                "index": 4,
+                "x_3d_meters": -0.09879662096500397,
+                "y_3d_meters": -0.7370173335075378,
+                "z_3d_meters": 2.491000175476074,
+                "visibility": 0.9999414682388306,
+                "x_2d_normalized": 0.4602096974849701,
+                "y_2d_normalized": 0.12690435349941254,
+                "z_estimated_mediapipe": 0.2563231289386749
+            },
+            {
+                "index": 5,
+                "x_3d_meters": -0.09278858453035355,
+                "y_3d_meters": -0.7634933590888977,
+                "z_3d_meters": 2.552000045776367,
+                "visibility": 0.9999339580535889,
+                "x_2d_normalized": 0.46480002999305725,
+                "y_2d_normalized": 0.12385733425617218,
+                "z_estimated_mediapipe": 0.2563481032848358
+            },
+            {
+                "index": 6,
+                "x_3d_meters": -0.0876534953713417,
+                "y_3d_meters": -0.8349961042404175,
+                "z_3d_meters": 2.7910001277923584,
+                "visibility": 0.9999406337738037,
+                "x_2d_normalized": 0.4685158133506775,
+                "y_2d_normalized": 0.12237339466810226,
+                "z_estimated_mediapipe": 0.2562595009803772
+            },
+            {
+                "index": 7,
+                "x_3d_meters": -0.16508053243160248,
+                "y_3d_meters": -0.664581835269928,
+                "z_3d_meters": 2.324000120162964,
+                "visibility": 0.9999284744262695,
+                "x_2d_normalized": 0.4319838583469391,
+                "y_2d_normalized": 0.13886474072933197,
+                "z_estimated_mediapipe": 0.06704722344875336
+            },
+            {
+                "index": 8,
+                "x_3d_meters": -0.06669546663761139,
+                "y_3d_meters": -0.8524073958396912,
+                "z_3d_meters": 2.88100004196167,
+                "visibility": 0.9999208450317383,
+                "x_2d_normalized": 0.4763146936893463,
+                "y_2d_normalized": 0.127383291721344,
+                "z_estimated_mediapipe": 0.13344040513038635
+            },
+            {
+                "index": 9,
+                "x_3d_meters": -0.11479999870061874,
+                "y_3d_meters": -0.6546456813812256,
+                "z_3d_meters": 2.31600022315979,
+                "visibility": 0.9997259974479675,
+                "x_2d_normalized": 0.452075332403183,
+                "y_2d_normalized": 0.14457066357135773,
+                "z_estimated_mediapipe": 0.24423551559448242
+            },
+            {
+                "index": 10,
+                "x_3d_meters": -0.08966628462076187,
+                "y_3d_meters": -0.6706953644752502,
+                "z_3d_meters": 2.3590002059936523,
+                "visibility": 0.9997182488441467,
+                "x_2d_normalized": 0.46301108598709106,
+                "y_2d_normalized": 0.14264531433582306,
+                "z_estimated_mediapipe": 0.2629880905151367
+            },
+            {
+                "index": 11,
+                "x_3d_meters": -0.1887454092502594,
+                "y_3d_meters": -0.520418107509613,
+                "z_3d_meters": 2.1560001373291016,
+                "visibility": 0.9998759627342224,
+                "x_2d_normalized": 0.4158039093017578,
+                "y_2d_normalized": 0.1952732354402542,
+                "z_estimated_mediapipe": -0.018159622326493263
+            },
+            {
+                "index": 12,
+                "x_3d_meters": 0.0778195708990097,
+                "y_3d_meters": -0.5772090554237366,
+                "z_3d_meters": 2.3590002059936523,
+                "visibility": 0.9995390176773071,
+                "x_2d_normalized": 0.5291926264762878,
+                "y_2d_normalized": 0.19227361679077148,
+                "z_estimated_mediapipe": 0.09780499339103699
+            },
+            {
+                "index": 13,
+                "x_3d_meters": -0.3239031434059143,
+                "y_3d_meters": -0.3986847996711731,
+                "z_3d_meters": 2.0429999828338623,
+                "visibility": 0.9593555331230164,
+                "x_2d_normalized": 0.349019855260849,
+                "y_2d_normalized": 0.25460782647132874,
+                "z_estimated_mediapipe": 0.1529858559370041
+            },
+            {
+                "index": 14,
+                "x_3d_meters": 0.24160602688789368,
+                "y_3d_meters": -0.45957881212234497,
+                "z_3d_meters": 2.4810001850128174,
+                "visibility": 0.9304913878440857,
+                "x_2d_normalized": 0.590097963809967,
+                "y_2d_normalized": 0.2659885883331299,
+                "z_estimated_mediapipe": 0.26731735467910767
+            },
+            {
+                "index": 15,
+                "x_3d_meters": -0.27049359679222107,
+                "y_3d_meters": -0.5941981077194214,
+                "z_3d_meters": 2.127000093460083,
+                "visibility": 0.7148980498313904,
+                "x_2d_normalized": 0.3785129189491272,
+                "y_2d_normalized": 0.14801345765590668,
+                "z_estimated_mediapipe": 0.3962687849998474
+            },
+            {
+                "index": 16,
+                "x_3d_meters": 0.16353844106197357,
+                "y_3d_meters": -0.6595035791397095,
+                "z_3d_meters": 2.5410001277923584,
+                "visibility": 0.5496403574943542,
+                "x_2d_normalized": 0.5592411160469055,
+                "y_2d_normalized": 0.17278368771076202,
+                "z_estimated_mediapipe": 0.4957682192325592
+            },
+            {
+                "index": 17,
+                "x_3d_meters": -0.2741815745830536,
+                "y_3d_meters": -0.6450203061103821,
+                "z_3d_meters": 2.1560001373291016,
+                "visibility": 0.6493729948997498,
+                "x_2d_normalized": 0.3777711093425751,
+                "y_2d_normalized": 0.1237320527434349,
+                "z_estimated_mediapipe": 0.4208281934261322
+            },
+            {
+                "index": 18,
+                "x_3d_meters": null,
+                "y_3d_meters": null,
+                "z_3d_meters": null,
+                "visibility": 0.45117881894111633,
+                "x_2d_normalized": 0.5686532258987427,
+                "y_2d_normalized": 0.14738960564136505,
+                "z_estimated_mediapipe": 0.5272136926651001
+            },
+            {
+                "index": 19,
+                "x_3d_meters": -0.23935778439044952,
+                "y_3d_meters": -0.6471145153045654,
+                "z_3d_meters": 2.1630001068115234,
+                "visibility": 0.6522867679595947,
+                "x_2d_normalized": 0.39341822266578674,
+                "y_2d_normalized": 0.12328555434942245,
+                "z_estimated_mediapipe": 0.40752464532852173
+            },
+            {
+                "index": 20,
+                "x_3d_meters": null,
+                "y_3d_meters": null,
+                "z_3d_meters": null,
+                "visibility": 0.43646353483200073,
+                "x_2d_normalized": 0.5579875111579895,
+                "y_2d_normalized": 0.14430399239063263,
+                "z_estimated_mediapipe": 0.5288126468658447
+            },
+            {
+                "index": 21,
+                "x_3d_meters": -0.23382535576820374,
+                "y_3d_meters": -0.6336202025413513,
+                "z_3d_meters": 2.1780002117156982,
+                "visibility": 0.6313245892524719,
+                "x_2d_normalized": 0.39736810326576233,
+                "y_2d_normalized": 0.13317902386188507,
+                "z_estimated_mediapipe": 0.3995034098625183
+            },
+            {
+                "index": 22,
+                "x_3d_meters": null,
+                "y_3d_meters": null,
+                "z_3d_meters": null,
+                "visibility": 0.4128267467021942,
+                "x_2d_normalized": 0.5530979633331299,
+                "y_2d_normalized": 0.1542779952287674,
+                "z_estimated_mediapipe": 0.5038325786590576
+            },
+            {
+                "index": 23,
+                "x_3d_meters": -0.06890425086021423,
+                "y_3d_meters": -0.015151770785450935,
+                "z_3d_meters": 2.194000005722046,
+                "visibility": 0.999686598777771,
+                "x_2d_normalized": 0.4689631462097168,
+                "y_2d_normalized": 0.49093371629714966,
+                "z_estimated_mediapipe": -0.06332401186227798
+            },
+            {
+                "index": 24,
+                "x_3d_meters": 0.07151158154010773,
+                "y_3d_meters": -0.030831970274448395,
+                "z_3d_meters": 2.2820000648498535,
+                "visibility": 0.999175488948822,
+                "x_2d_normalized": 0.5282607078552246,
+                "y_2d_normalized": 0.4823724031448364,
+                "z_estimated_mediapipe": 0.06301659345626831
+            },
+            {
+                "index": 25,
+                "x_3d_meters": -0.07667004317045212,
+                "y_3d_meters": 0.3640926778316498,
+                "z_3d_meters": 2.2090001106262207,
+                "visibility": 0.8959248065948486,
+                "x_2d_normalized": 0.465247243642807,
+                "y_2d_normalized": 0.7073233723640442,
+                "z_estimated_mediapipe": -0.06406871229410172
+            },
+            {
+                "index": 26,
+                "x_3d_meters": 0.056440047919750214,
+                "y_3d_meters": 0.34221163392066956,
+                "z_3d_meters": 2.2820000648498535,
+                "visibility": 0.6802613735198975,
+                "x_2d_normalized": 0.5224915146827698,
+                "y_2d_normalized": 0.6890336275100708,
+                "z_estimated_mediapipe": 0.11535456031560898
+            },
+            {
+                "index": 27,
+                "x_3d_meters": -0.05843329057097435,
+                "y_3d_meters": 0.7543834447860718,
+                "z_3d_meters": 2.2090001106262207,
+                "visibility": 0.8456009030342102,
+                "x_2d_normalized": 0.4732649326324463,
+                "y_2d_normalized": 0.9315796494483948,
+                "z_estimated_mediapipe": -0.0863557755947113
+            },
+            {
+                "index": 28,
+                "x_3d_meters": 0.10474998503923416,
+                "y_3d_meters": 0.7533077001571655,
+                "z_3d_meters": 2.442000150680542,
+                "visibility": 0.6831520199775696,
+                "x_2d_normalized": 0.5385321378707886,
+                "y_2d_normalized": 0.8905986547470093,
+                "z_estimated_mediapipe": 0.09695840626955032
+            },
+            {
+                "index": 29,
+                "x_3d_meters": -0.02925449050962925,
+                "y_3d_meters": 0.8018019199371338,
+                "z_3d_meters": 2.2090001106262207,
+                "visibility": 0.9279029369354248,
+                "x_2d_normalized": 0.4855061173439026,
+                "y_2d_normalized": 0.9585632681846619,
+                "z_estimated_mediapipe": -0.08528168499469757
+            },
+            {
+                "index": 30,
+                "x_3d_meters": 0.11185574531555176,
+                "y_3d_meters": 0.8450790643692017,
+                "z_3d_meters": 2.511000156402588,
+                "visibility": 0.7862046957015991,
+                "x_2d_normalized": 0.5409988164901733,
+                "y_2d_normalized": 0.9240948557853699,
+                "z_estimated_mediapipe": 0.09638968855142593
+            },
+            {
+                "index": 31,
+                "x_3d_meters": -0.15625464916229248,
+                "y_3d_meters": 0.8107073307037354,
+                "z_3d_meters": 2.307000160217285,
+                "visibility": 0.6626635789871216,
+                "x_2d_normalized": 0.43489646911621094,
+                "y_2d_normalized": 0.9441370368003845,
+                "z_estimated_mediapipe": -0.10107824951410294
+            },
+            {
+                "index": 32,
+                "x_3d_meters": null,
+                "y_3d_meters": null,
+                "z_3d_meters": null,
+                "visibility": 0.4194933772087097,
+                "x_2d_normalized": 0.5223096609115601,
+                "y_2d_normalized": 0.9140674471855164,
+                "z_estimated_mediapipe": 0.08657390624284744
+            }
+        ]
+    ]
+}

@@ -12,10 +12,10 @@ type: project
 | Component | Venv path | Python |
 |---|---|---|
 | Camera system | `<root>/.venv/` | system Python + mediapipe/pyrealsense2 |
-| Backend API | `frontend/backend/venv/` | **Python 3.13, Windows** |
+| Backend API | `backend/venv/` | **Python 3.13, Windows** |
 | Frontend | `frontend/node_modules/` | Node.js / npm |
 
-The `frontend/backend/venv/` was recreated on 2026-05-06 — the original was built on a Mac (Python 3.14, Homebrew paths) and was not usable on Windows.
+The `backend/venv/` was recreated on 2026-05-06 — the original was built on a Mac (Python 3.14, Homebrew paths) and was not usable on Windows. Backend was also moved from `frontend/backend/` → `backend/` on the same date.
 
 ## Camera system Python deps (root `.venv`)
 `pyrealsense2`, `mediapipe`, `opencv-python`, `numpy`, `matplotlib`

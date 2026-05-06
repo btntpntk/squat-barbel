@@ -12,13 +12,13 @@ type: project
 
 ## Components
 
-### 1. Camera & Capture (root `F_*.py`)
+### 1. Camera & Capture (`capture/`)
 - RealSense front camera + iPhone via Camo (side camera)
 - MediaPipe pose estimation → 33 joints/frame
 - Auto rep detection → saves `output/pose-seq/SESS-XXXX_repN.json` + `output/video/` + `output/video-side/`
-- Entry: `python F_main.py`
+- Entry: `python capture/F_main.py` (from project root)
 
-### 2. Analysis API (`frontend/backend/`)
+### 2. Analysis API (`backend/`)
 - FastAPI, Python 3.14, `frontend/backend/venv/`
 - Single endpoint `POST /analyze` — currently stubs to `generate_mock_response()`
 - AI model: PyTorch `.pt` (not yet loaded)

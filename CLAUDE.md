@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **SquatBarbel** is a three-component system:
 
-1. **Camera & Capture** (root `F_*.py`) — Intel RealSense + iPhone side camera records reps, runs MediaPipe pose estimation, auto-detects reps, and saves per-rep JSON landmark sequences to `output/pose-seq/`.
-2. **Analysis API** (`frontend/backend/`) — FastAPI server exposes `POST /analyze`; currently stubs to `generate_mock_response()`. The real AI model is not yet connected.
+1. **Camera & Capture** (`capture/`) — Intel RealSense + iPhone side camera records reps, runs MediaPipe pose estimation, auto-detects reps, and saves per-rep JSON landmark sequences to `output/pose-seq/`.
+2. **Analysis API** (`backend/`) — FastAPI server exposes `POST /analyze` and serves rep files. Currently stubs to `generate_mock_response()` — the real AI model is not yet connected.
 3. **Kiosk Frontend** (`frontend/`) — React + Three.js web app; user selects a rep, sends its pose sequence to the API, and receives 3D heatmap feedback.
 
-Detailed component docs live in:
-- [`PoseCollection.md`](PoseCollection.md) — camera system architecture, runtime controls, output schema
+Detailed component docs:
+- [`capture/CLAUDE.md`](capture/CLAUDE.md) — camera system architecture, runtime controls, output schema
 - [`frontend/CLAUDE.md`](frontend/CLAUDE.md) — frontend screen flow, 3D rendering, mock vs. real API
 - [`frontend/API_SPEC.md`](frontend/API_SPEC.md) — `POST /analyze` request/response contract
 
@@ -19,22 +19,23 @@ Detailed component docs live in:
 
 ## Commands
 
-### Camera capture system (root venv)
+### Camera capture system
 ```bash
-# Activate venv (Windows)
+# From project root, with root .venv activated:
 .venv\Scripts\activate
 
-python F_main.py            # live capture — s=start session, p=manual rep, q=quit
-python F_viewer.py SESS-0001_rep1          # replay a saved rep
-python test.py              # test side camera only
+python capture/F_main.py                      # live capture — s=start, p=rep, q=quit
+python capture/F_viewer.py SESS-0001_rep1     # replay a saved rep
+python capture/test.py                        # test side camera only
 ```
 
 ### Backend API
 ```bash
-cd frontend/backend
-# Windows: venv\Scripts\activate   |   Mac/Linux: source venv/bin/activate
-uvicorn main:app --reload              # → http://localhost:8000
+cd backend
+venv\Scripts\activate
+uvicorn main:app --reload      # → http://localhost:8000
 # Swagger UI: http://localhost:8000/docs
+# First startup: ~10 s (cache build for 500+ rep files)
 ```
 
 ### Frontend
@@ -43,6 +44,38 @@ cd frontend
 npm run dev      # → http://localhost:5173
 npm run build
 npm run lint
+# Run `npm install` once after a fresh clone
+```
+
+---
+
+## Directory Structure
+
+```
+SquatBarbel/
+├── capture/          Camera system (F_*.py, requirements.txt)
+├── backend/          FastAPI API server
+│   ├── app/
+│   │   ├── api/      analyze.py, reps.py, events.py
+│   │   ├── core/     config.py  (resolves OUTPUT_DIR, MODEL_PATH)
+│   │   ├── models/   schemas.py
+│   │   └── services/ rep_store.py, file_watcher.py, mock_analysis.py
+│   ├── main.py
+│   ├── requirements.txt
+│   └── venv/         Python 3.13 (Windows)
+├── frontend/         React kiosk
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/  apiClient.js
+│   │   └── utils/
+│   └── .env
+├── output/           Generated data (gitignored)
+│   ├── pose-seq/     SESS-XXXX_repN.json
+│   ├── video/        SESS-XXXX_repN.mp4  (front)
+│   └── video-side/   SESS-XXXX_repN.mp4  (side)
+├── models/           PyTorch .pt files go here (gitignored)
+├── memory/           Claude Code cross-session memory
+└── .venv/            Camera system Python venv (root)
 ```
 
 ---
@@ -50,200 +83,105 @@ npm run lint
 ## System Data Flow
 
 ```
-[RealSense Camera]
-      │  F_camera.py / F_side_camera.py
+[RealSense Camera + Camo side cam]
+      │  capture/F_camera.py / F_side_camera.py
       ▼
 [F_pose.py] MediaPipe → 33 joints/frame
       │
 [F_rep_detector.py] auto-detect rep boundary
       │
 [F_recorder.py] writes:
-      ├── output/pose-seq/SESS-XXXX_repN.json   ← LANDMARK DATA (source of truth)
+      ├── output/pose-seq/SESS-XXXX_repN.json   ← landmark data (source of truth)
       ├── output/video/SESS-XXXX_repN.mp4        (front RGB)
       └── output/video-side/SESS-XXXX_repN.mp4  (side Camo)
 
-              ↓  (rep JSON served to frontend)
+              ↓  filesystem watch (live mode) or on-demand (batch mode)
 
-[frontend/src/data/rep_0N.json]    currently static ES module imports
-      │
-[RepSelectScreen] plays 12 fps skeleton preview
-      │  on "Analyze"
+[backend/app/services/rep_store.py]
+      │  GET /reps, GET /reps/{id}/pose, GET /reps/{id}/video/{view}
+      │  GET /events (SSE — pushes new_rep on new file)
       ▼
-[apiClient.js] POST /analyze  →  frontend/backend/main.py
+[frontend RepSelectScreen] plays 12 fps skeleton preview
+      │  on "Analyze" or SSE auto-navigate
+      ▼
+[apiClient.js] POST /analyze  →  backend/main.py
                                       │
                                app/api/analyze.py
-                                      │  (stub — raise NotImplementedError)
+                                      │  (stub → generate_mock_response)
                                       ▼
-                               mock_analysis.py  generate_mock_response()
-                                      │
                                AnalyzeResponse { mistakes, confidences,
                                  rule_values, phase_per_frame,
                                  joint_heatmap (frames×36), phases }
       ▼
-[AnalysisScreen] → PoseSkeleton + HeatmapOverlay + FeedbackPanel
+[AnalysisScreen] → PoseSkeleton + HeatmapOverlay + FeedbackPanel + VideoPlayer×2
 ```
 
 ---
 
 ## Coordinate System
 
-The camera system outputs **`x_3d / y_3d / z_3d`** (meters, MediaPipe convention: **+Y is DOWN**).
+The camera system outputs **`x_3d / y_3d / z_3d`** (capture JSON). The API wire format uses **`x_3d_meters / y_3d_meters / z_3d_meters`** — same values, renamed by `rep_store.py::get_pose()`.
 
-The API spec uses **`x_3d_meters / y_3d_meters / z_3d_meters`** — these are the same values, just renamed for the wire format (see `frontend/API_SPEC.md`).
+**+Y is DOWN** (MediaPipe convention). `PoseSkeleton.jsx` negates Y and Z for Three.js space.
 
-`PoseSkeleton.jsx` applies:
-```
-tx = x_3d_meters − centerX
-ty = −(y_3d_meters − centerY)   ← negate for Three.js (+Y up)
-tz = −(z_3d_meters − centerZ)   ← negate to face camera
-```
-
-Landmark fields in the capture JSON (`pose-seq/*.json`) that map to the API request:
-| Capture field | API field |
-|---|---|
-| `x_3d` | `x_3d_meters` |
-| `y_3d` | `y_3d_meters` |
-| `z_3d` | `z_3d_meters` |
-| `visibility` | `visibility` |
-
-`x_3d / y_3d / z_3d` are `null` when visibility < threshold or depth is zero — the frontend/backend must handle nulls.
+`x_3d / y_3d / z_3d` are `null` when visibility < threshold or depth is zero — both backend and frontend handle nulls.
 
 ---
 
 ## Two Operating Modes
 
-The system supports two modes, configurable via `frontend/backend/.env` (`MODE=live` or `MODE=batch`):
+Set `MODE` in `backend/.env`:
 
-### Live Mode
-Camera capture runs concurrently on the same machine. The backend watches `output/pose-seq/` for new files written by `F_recorder.py`. When a new `SESS-XXXX_repN.json` appears the backend pushes a notification to the frontend (SSE or WebSocket). The RepSelectScreen shows all reps for the **current session only** (highest SESS-XXXX number in `output/`).
+**`live`** — Camera runs concurrently. Backend watches `output/pose-seq/` via `file_watcher.py`. New rep triggers SSE `{type:"new_rep", id:"..."}` → `App.jsx` auto-navigates to `AnalysisScreen`. RepSelectScreen shows current session only (highest SESS number).
 
-```
-F_main.py → F_recorder.py writes output/pose-seq/SESS-XXXX_repN.json
-                                    ↓  (filesystem watch)
-                           backend detects new file
-                                    ↓  SSE / WebSocket push
-                           frontend RepSelectScreen updates rep list
-```
-
-### Batch Mode
-No camera required. The backend reads from `output/pose-seq/` on demand. The RepSelectScreen lists **all** reps across all sessions found in that directory.
+**`batch`** — No camera required. Backend reads all of `output/pose-seq/` at startup (cached). RepSelectScreen shows all sessions.
 
 ---
 
-## Backend Endpoints To Build
-
-The current backend only has `POST /analyze`. The following endpoints are needed:
+## Backend API
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /reps` | List available reps. In Live mode: current session only. In Batch mode: all. Returns `[{id, session, rep_number, frame_count}]`. |
-| `GET /reps/{id}/pose` | Return the raw `pose_sequence` JSON for one rep (reads `output/pose-seq/{id}.json`). |
-| `GET /reps/{id}/video/{view}` | Stream `.mp4` with HTTP range support. `view` is `front` or `side` (maps to `output/video/` and `output/video-side/`). |
-| `GET /events` | SSE stream; emits `{type:"new_rep", id:"SESS-0017_rep3"}` when a new file is detected (Live mode only). |
-| `POST /analyze` | Existing — accepts `pose_sequence`, runs PyTorch model, returns heatmap. |
-
-All file paths are **relative to the project root** (`c:\Users\guy\Documents\SquatBarbel\`), which the backend locates via `OUTPUT_DIR` in `frontend/backend/.env`.
+| `GET /reps` | List reps (current session in live, all in batch) |
+| `GET /reps/{id}/pose` | Raw pose sequence for one rep (renames `x_3d→x_3d_meters`) |
+| `GET /reps/{id}/video/{view}` | Stream `.mp4`/`.avi` with HTTP Range (`view`: `front` or `side`) |
+| `GET /events` | SSE stream — `new_rep` events in live mode, `: ping` keepalive every 20 s |
+| `POST /analyze` | Analyze pose sequence → heatmap + mistakes (currently mock) |
 
 ---
 
-## AI Model Integration
+## AI Model — Not Yet Connected
 
-The `.pt` PyTorch model replaces the `raise NotImplementedError` in `app/api/analyze.py`. Load once at startup (FastAPI `lifespan`), not per-request.
+Drop a `.pt` file at `models/squat_model.pt` (controlled by `MODEL_PATH` in `backend/.env`).
 
-**Model I/O contract** (same as the HTTP contract in `API_SPEC.md`):
-- **Input**: `pose_sequence` — the same list-of-frames structure from the `POST /analyze` request body
-- **Output**: the full `AnalyzeResponse` fields — `mistakes`, `confidences`, `rule_values`, `phase_per_frame`, `joint_heatmap`, `phases`
+To connect it, create `backend/app/services/analysis.py` and replace the stub in `backend/app/api/analyze.py`:
 
 ```python
-# app/services/analysis.py  (to create)
-import torch
-
-_model = None
-
-def load_model(path: str):
-    global _model
-    _model = torch.load(path, map_location="cpu")
-    _model.eval()
-
-def run_analysis(pose_sequence) -> AnalyzeResponse:
-    # feed pose_sequence JSON directly to model
-    # model returns dict matching AnalyzeResponse fields
-    with torch.no_grad():
-        result = _model(pose_sequence)
-    return AnalyzeResponse(**result)
+# Replace: raise NotImplementedError
+# With:
+return run_analysis(request.pose_sequence)
 ```
 
-Set `MODEL_PATH` in `frontend/backend/.env`. The model path should point to the `.pt` file in the project root or a `models/` subfolder.
-
-## Live Mode Auto-Analysis Flow
-
-When a new rep is detected in Live mode, the frontend skips the RepSelectScreen and jumps straight to analysis:
-
-```
-SSE event {type:"new_rep", id:"SESS-0017_rep3"}
-        ↓
-frontend auto-navigates to AnalysisScreen
-        ↓  (shows "Analyzing Squat..." spinner — 3.2 s minimum delay already in AnalysisScreen)
-GET /reps/{id}/pose   ← fetch the pose_sequence
-        ↓
-POST /analyze          ← send to model
-        ↓
-render 3D heatmap + FeedbackPanel
-```
-
-The `AnalysisScreen` already handles the loading state and minimum-delay UX pattern — no changes needed there. The SSE event + auto-navigate logic belongs in `App.jsx`.
-
-## Video Playback
-
-Video playback is a **section within `AnalysisScreen`** alongside the existing 3D view (not a new screen). The backend streams the `.mp4` with HTTP `Range` header support so the browser `<video>` element can seek. Two video players side by side: front view (`output/video/`) and side view (`output/video-side/`).
-
-Endpoint: `GET /reps/{id}/video/{view}` where `view` is `front` or `side`.
-
-## What Is Not Yet Implemented
-
-- All new backend endpoints listed above
-- PyTorch model loading and inference in `app/api/analyze.py`
-- Filesystem watcher for Live mode SSE (`GET /events`)
-- HTTP range-request video streaming
-- Video playback section in `AnalysisScreen`
-- Frontend SSE subscription + auto-navigate in `App.jsx`
-- Frontend rep list fetched from API (currently static `rep_01.json` / `rep_02.json` imports in `RepSelectScreen.jsx`)
-
----
-
-## Plugging In the Real Analysis Model
-
-In [`frontend/backend/app/api/analyze.py`](frontend/backend/app/api/analyze.py), replace the stub:
-
-```python
-# Before (stub):
-raise NotImplementedError
-
-# After: call your model/service here
-result = my_analysis_service.analyze(request.pose_sequence)
-return result
-```
-
-The `generate_mock_response()` fallback always returns `mistakes=["Depth","Trunk"]` with a heatmap that peaks at `n_frames // 2`. The 10-label order is fixed: Head, Hip, Frontal Knee, Tibial Angle, Foot, Depth, Thoracic, Trunk, Descent, Ascent.
+Model I/O: input = `pose_sequence` (List[List[JointData]]), output = dict matching `AnalyzeResponse`. See `frontend/API_SPEC.md`. Use `torch.load(path, weights_only=False)` for full-model `.pt` files.
 
 ---
 
 ## Environment Variables
 
-| File | Variable | Default | Notes |
+| File | Variable | Value | Notes |
 |---|---|---|---|
 | `frontend/.env` | `VITE_API_BASE_URL` | `http://localhost:8000` | |
-| `frontend/backend/.env` | `FRONTEND_ORIGIN` | `http://localhost:5173` | |
-| `frontend/backend/.env` | `MODE` | `live` | `live` or `batch` |
-| `frontend/backend/.env` | `OUTPUT_DIR` | `../../output` | Relative to `frontend/backend/`; resolves to root `output/` |
-| `frontend/backend/.env` | `MODEL_PATH` | `../../models/squat_model.pt` | Path to the PyTorch `.pt` file |
+| `backend/.env` | `FRONTEND_ORIGIN` | `http://localhost:5173` | |
+| `backend/.env` | `MODE` | `live` or `batch` | |
+| `backend/.env` | `OUTPUT_DIR` | `../output` | Relative to `backend/` |
+| `backend/.env` | `MODEL_PATH` | `../models/squat_model.pt` | Relative to `backend/` |
 
 ---
 
 ## Virtual Joint Indices (heatmap)
 
-`joint_heatmap` has 36 values per frame (not 33):
+`joint_heatmap` has 36 values per frame:
 - 0–32: Standard MediaPipe joints
-- 33: `mid_hip` (virtual — average of 23 + 24)
-- 34: `mid_shoulder` (virtual — average of 11 + 12)
-- 35: `mid_ear` (virtual — average of 7 + 8)
+- 33: `mid_hip` (virtual — avg of 23 + 24)
+- 34: `mid_shoulder` (virtual — avg of 11 + 12)
+- 35: `mid_ear` (virtual — avg of 7 + 8)

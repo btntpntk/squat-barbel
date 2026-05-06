@@ -12,18 +12,11 @@ npm run lint         # ESLint check
 npm run preview      # preview production build locally
 ```
 
-### Backend
+### Backend (run from project root)
 ```bash
 cd backend
-source venv/bin/activate
+venv\Scripts\activate
 uvicorn main:app --reload          # dev server → http://localhost:8000
-uvicorn main:app --reload --port 8001  # alternate port
-```
-
-Install backend deps (first time):
-```bash
-cd backend && python3 -m venv venv && source venv/bin/activate
-pip install fastapi uvicorn pydantic python-dotenv
 ```
 
 API docs auto-generated at `http://localhost:8000/docs`.

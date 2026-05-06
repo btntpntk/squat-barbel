@@ -29,7 +29,7 @@ Three components run together on the same Windows machine:
 | Component | Requirement |
 |---|---|
 | Camera system | Python (`.venv` at root), Intel RealSense SDK, Camo Studio |
-| Backend API | Python 3.13 (`frontend/backend/venv/`) |
+| Backend API | Python 3.13 (`backend/venv/`) |
 | Frontend | Node.js + npm (`frontend/node_modules/`) |
 
 ---
@@ -40,7 +40,7 @@ Run each in its own terminal from the project root.
 
 ### 1 — Backend API
 ```
-cd frontend\backend
+cd backend
 venv\Scripts\activate
 uvicorn main:app --reload
 ```
@@ -60,7 +60,7 @@ npm run dev
 ### 3 — Camera Capture (live mode only)
 ```
 .venv\Scripts\activate
-python F_main.py
+python capture/F_main.py
 ```
 
 | Key | Action |
@@ -130,7 +130,7 @@ Until the model is connected, `POST /analyze` returns a built-in mock response (
 | File | Contents |
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | Full architecture, data flow, integration points — for Claude Code |
-| [`PoseCollection.md`](PoseCollection.md) | Camera system internals, rep detector, recorder |
+| [`capture/CLAUDE.md`](capture/CLAUDE.md) | Camera system internals, rep detector, recorder |
 | [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | Frontend screen flow, 3D rendering, component responsibilities |
 | [`frontend/API_SPEC.md`](frontend/API_SPEC.md) | `POST /analyze` request/response contract |
 | [`frontend/FRONT.md`](frontend/FRONT.md) | Frontend stack, CSS, component reference |

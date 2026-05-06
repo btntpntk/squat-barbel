@@ -8,7 +8,8 @@
       "PowerShell(python -m venv \"c:\\\\Users\\\\guy\\\\Documents\\\\SquatBarbel\\\\frontend\\\\backend\\\\venv\")",
       "PowerShell(& \"c:\\\\Users\\\\guy\\\\Documents\\\\SquatBarbel\\\\frontend\\\\backend\\\\venv\\\\Scripts\\\\pip.exe\" install fastapi \"uvicorn[standard]\" pydantic python-dotenv watchdog 2>&1)",
       "PowerShell(cd \"c:\\\\Users\\\\guy\\\\Documents\\\\SquatBarbel\\\\frontend\\\\backend\"; $proc = Start-Process -FilePath \".\\\\venv\\\\Scripts\\\\uvicorn.exe\" -ArgumentList \"main:app\",\"--port\",\"8000\" -PassThru -RedirectStandardOutput \"$env:TEMP\\\\uvicorn_out.txt\" -RedirectStandardError \"$env:TEMP\\\\uvicorn_err.txt\"; Start-Sleep -Seconds 4; Get-Content \"$env:TEMP\\\\uvicorn_out.txt\" -ErrorAction SilentlyContinue; Get-Content \"$env:TEMP\\\\uvicorn_err.txt\" -ErrorAction SilentlyContinue; $proc | Stop-Process -Force)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(./venv/Scripts/python.exe -c ' *)"
     ]
   }
 }

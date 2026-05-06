@@ -1,8 +1,6 @@
 import cv2
 
-
 INTEL_KEYWORDS = ("intel", "realsense", "depth")
-
 
 def find_camo_index(keyword="Camo"):
     """Return the first non-Intel camera index whose name contains keyword (or any non-Intel if keyword not found)."""

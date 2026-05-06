@@ -11,6 +11,7 @@ from app.core.config import MODE, OUTPUT_DIR
 from app.api.analyze import router as analyze_router
 from app.api.reps import router as reps_router
 from app.api.events import router as events_router
+from app.api.live_feed import router as live_feed_router
 from app.services import rep_store
 from app.services.file_watcher import start_watcher, stop_watcher
 
@@ -43,7 +44,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin, "http://localhost:5173"],
+    allow_origins=[frontend_origin, "http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,6 +53,7 @@ app.add_middleware(
 app.include_router(analyze_router)
 app.include_router(reps_router)
 app.include_router(events_router)
+app.include_router(live_feed_router)
 
 
 @app.get("/")

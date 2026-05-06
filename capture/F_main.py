@@ -1,5 +1,6 @@
 import logging
 import time
+from pathlib import Path
 from typing import Optional
 
 import cv2
@@ -26,6 +27,11 @@ _CELL_W = 640
 
 def main() -> None:
     cfg = AppConfig()
+
+    live_dir = cfg.recorder.output_dir / "live"
+    live_dir.mkdir(parents=True, exist_ok=True)
+    live_front = live_dir / "front.jpg"
+    live_side  = live_dir / "side.jpg"
 
     camera    = RealSenseCamera(cfg.camera)
     side_cam  = SideCamera(cfg.side_camera)
@@ -99,6 +105,16 @@ def main() -> None:
                 detect_status=detector.get_status() if recorder.in_session else None,
                 w=_CELL_W, h=_CELL_H,
             )
+            # Write latest JPEG frames for the web live feed (~20 fps at 60 fps capture)
+            if frame_idx % 3 == 0:
+                ok, buf = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                if ok:
+                    live_front.write_bytes(buf.tobytes())
+                if side_frame is not None:
+                    ok, buf = cv2.imencode('.jpg', side_frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                    if ok:
+                        live_side.write_bytes(buf.tobytes())
+
             cv2.imshow("Barbel", composite_frame(
                 annotated, side_frame, last_3d, info,
                 cell_h=_CELL_H, cell_w=_CELL_W,

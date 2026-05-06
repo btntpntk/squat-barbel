@@ -5,7 +5,7 @@ const FEATURES = [
   { icon: '🛡️', label: 'No Account Needed',    sub: 'Guest session only' },
 ];
 
-export function WelcomeScreen({ onStart }) {
+export function WelcomeScreen({ onMode, liveConnected }) {
   return (
     <div style={{
       flex: 1, display: 'flex', flexDirection: 'column',
@@ -51,8 +51,10 @@ export function WelcomeScreen({ onStart }) {
         textAlign: 'center', maxWidth: 440,
         lineHeight: 1.6, marginBottom: 36,
       }}>
-        Stand in front of the depth camera, perform a squat, and get
-        instant 3D posture feedback with joint-level heatmap highlighting.
+        {liveConnected
+          ? 'Camera is active. Step into position and perform a squat — analysis starts automatically.'
+          : 'Stand in front of the depth camera, perform a squat, and get instant 3D posture feedback with joint-level heatmap highlighting.'
+        }
       </p>
 
       {/* Feature grid */}
@@ -85,39 +87,94 @@ export function WelcomeScreen({ onStart }) {
         ))}
       </div>
 
-      {/* Start button */}
-      <button
-        className="btn-glow fade-in-up-d4"
-        onClick={onStart}
-        style={{
-          padding: '18px 56px',
-          fontSize: 20, fontWeight: 800,
-          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-          color: '#fff', border: 'none',
-          borderRadius: 16, cursor: 'pointer',
-          letterSpacing: '0.04em',
-          position: 'relative', overflow: 'hidden',
-          transition: 'transform 0.15s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
-        onMouseUp={e => e.currentTarget.style.transform = 'scale(1.04)'}
-      >
-        {/* Shimmer sweep */}
-        <span style={{
-          position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)',
-          animation: 'shimmer 2.4s ease-in-out infinite',
-          pointerEvents: 'none',
-        }} />
-        Start Guest Session
-      </button>
+      {/* Mode buttons */}
+      <div className="fade-in-up-d4" style={{ display: 'flex', gap: 14, width: '100%', maxWidth: 520 }}>
 
-      <p className="fade-in-up-d4" style={{
-        marginTop: 16, fontSize: 12, color: '#1e293b',
-      }}>
-        No account · No data stored · No camera required for demo
+        {/* Live Session */}
+        <button
+          className="btn-glow"
+          onClick={() => onMode('live')}
+          style={{
+            flex: 1, padding: '20px 16px',
+            background: liveConnected
+              ? 'linear-gradient(135deg, #0891b2 0%, #2563eb 100%)'
+              : 'rgba(30,41,59,0.8)',
+            color: liveConnected ? '#fff' : '#475569',
+            border: liveConnected
+              ? 'none'
+              : '1.5px solid rgba(34,211,238,0.2)',
+            borderRadius: 16, cursor: 'pointer',
+            position: 'relative', overflow: 'hidden',
+            transition: 'transform 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1.03)'}
+        >
+          {liveConnected && (
+            <span style={{
+              position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+              animation: 'shimmer 2.4s ease-in-out infinite', pointerEvents: 'none',
+            }} />
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: '50%',
+              background: liveConnected ? '#22d3ee' : '#334155',
+              boxShadow: liveConnected ? '0 0 8px #22d3ee' : 'none',
+              animation: liveConnected ? 'pulse 1.5s ease-in-out infinite' : 'none',
+            }} />
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', opacity: 0.8 }}>
+              {liveConnected ? 'CAMERA ACTIVE' : 'CAMERA OFFLINE'}
+            </span>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '0.02em' }}>
+            Live Session
+          </div>
+          <div style={{ fontSize: 11, marginTop: 4, opacity: 0.65 }}>
+            Squat to auto-analyze
+          </div>
+        </button>
+
+        {/* Saved Reps */}
+        <button
+          onClick={() => onMode('batch')}
+          style={{
+            flex: 1, padding: '20px 16px',
+            background: 'rgba(15,23,42,0.7)',
+            color: '#94a3b8',
+            border: '1.5px solid rgba(255,255,255,0.08)',
+            borderRadius: 16, cursor: 'pointer',
+            backdropFilter: 'blur(8px)',
+            transition: 'transform 0.15s, border-color 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'scale(1.03)';
+            e.currentTarget.style.borderColor = 'rgba(148,163,184,0.2)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+          }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1.03)'}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', marginBottom: 6, opacity: 0.6 }}>
+            BROWSE EXISTING
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '0.02em' }}>
+            Saved Reps
+          </div>
+          <div style={{ fontSize: 11, marginTop: 4, opacity: 0.5 }}>
+            Pick and replay any recorded rep
+          </div>
+        </button>
+      </div>
+
+      <p className="fade-in-up-d4" style={{ marginTop: 14, fontSize: 12, color: '#1e293b' }}>
+        No account · No data stored
       </p>
     </div>
   );

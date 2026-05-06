@@ -9,11 +9,12 @@ function withTimeout(promise, ms) {
   return { controller, timer, promise };
 }
 
-export async function fetchReps() {
+export async function fetchReps(scope = null) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const url = scope ? `${BASE_URL}/reps?scope=${scope}` : `${BASE_URL}/reps`;
   try {
-    const response = await fetch(`${BASE_URL}/reps`, { signal: controller.signal });
+    const response = await fetch(url, { signal: controller.signal });
     clearTimeout(timer);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return await response.json();
@@ -21,6 +22,10 @@ export async function fetchReps() {
     clearTimeout(timer);
     throw err;
   }
+}
+
+export function getLiveFeedUrl(view) {
+  return `${BASE_URL}/live-feed/${view}`;
 }
 
 export async function fetchPoseSequence(repId) {

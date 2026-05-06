@@ -1,33 +1,42 @@
 ---
 name: Implementation Status
-description: What has been built end-to-end vs. what remains — specifically the AI model stub and Phase 6
+description: What has been built end-to-end vs. what remains — AI model Phase 6, plus all session-2 additions
 type: project
 ---
 
-## Completed (as of 2026-05-06)
+## Completed (updated 2026-05-06)
 
 ### Backend endpoints
-- `GET /reps` — lists reps; live mode = current session only, batch = all 512+
-- `GET /reps/{id}/pose` — reads capture JSON, renames `x_3d→x_3d_meters`, returns pose_sequence
-- `GET /reps/{id}/video/{view}` — streams `.mp4` / `.avi` with HTTP Range support (`view`: front or side)
-- `GET /events` — SSE stream; emits `{"type":"new_rep","id":"SESS-XXXX_repN"}` on new file
+- `GET /reps?scope=all` — `scope=all` forces batch (all sessions) regardless of backend MODE
+- `GET /reps/{id}/pose` — reads capture JSON, renames `x_3d→x_3d_meters`; **now also passes `x_norm` and `y_norm`** (used by frontend 2D fallback)
+- `GET /reps/{id}/video/{view}` — HTTP Range streaming for front/side MP4
+- `GET /events` — SSE; reconnect-safe on client; emits `{"type":"new_rep","id":"..."}` and `{"type":"connected"}` handshake
+- `GET /live-feed/{view}` — MJPEG stream (`multipart/x-mixed-replace`) from `output/live/{view}.jpg`; creates `output/live/` at import time
 - `POST /analyze` — **stub only**, always returns mock (Depth + Trunk mistakes)
 
-### Frontend
-- `RepSelectScreen` fetches rep list from `GET /reps`; loads pose on card click; no static JSON imports
-- `AnalysisScreen` accepts `repId` prop; shows video playback strip (front + side) below 3D canvas
-- `App.jsx` subscribes to `GET /events` SSE; auto-navigates to AnalysisScreen on `new_rep`
-- Null-coordinate guard in both `PoseSkeleton.transformJoints` and `AnalysisScreen.deriveTransformed`
+### Frontend screens and flow
+- **Welcome screen** — two buttons: **Live Session** (→ LiveScreen) and **Saved Reps** (→ RepSelectScreen with `scope=all`)
+- **LiveScreen** — shows MJPEG feeds from `/live-feed/front` and `/live-feed/side` while waiting for a squat; "Camera not active" placeholder when capture isn't running
+- **RepSelectScreen** — accepts `scope` prop; `scope="all"` fetches all reps across all sessions
+- **AnalysisScreen** — 3D skeleton + heatmap + video strip (front + side)
+- `App.jsx` SSE auto-reconnects on error (3 s retry); `modeRef` gates auto-navigate to analysis for live mode only; `liveConnected` state drives header indicator and welcome button style
+
+### Skeleton rendering
+- **POSE_CONNECTIONS** — 35 edges matching `mp.solutions.pose.POSE_CONNECTIONS` exactly (was 22, had wrong face entries)
+- **X-axis negated** in both `PoseSkeleton.transformJoints` and `AnalysisScreen.deriveTransformed` to match `F_visualizer.py` (`-lm["x_3d"]`); person faces viewer correctly
+- **Visibility filter** — connections with `min(visibility_a, visibility_b) < 0.4` are skipped (matches Python viewer threshold)
+- **2D fallback** — when all `x_3d_meters` are null (low-visibility joints, no depth data), falls back to `x_norm`/`y_norm` with `tz=0`; skeleton always renders
+
+### Capture system
+- `F_main.py` writes `output/live/front.jpg` and `output/live/side.jpg` every 3 frames (~20 fps) for the web live feed
 
 ### Config & infra
-- `frontend/backend/.env` — `MODE`, `OUTPUT_DIR`, `MODEL_PATH`
-- `app/core/config.py` — resolves absolute paths from `__file__` anchor (safe from any working dir)
-- Backend venv recreated on Python 3.13 Windows (old Mac venv discarded)
-- `watchdog` installed
+- Backend CORS allows ports 5173 **and** 5174 (Vite sometimes picks 5174 when 5173 is in use)
+- Backend venv must be recreated from `backend/` (not copied/moved — `.exe` launchers have hardcoded paths)
 
 ## Not yet done — Phase 6: AI model
 
-The only remaining phase. `app/api/analyze.py` stubs to `generate_mock_response()`.
+`app/api/analyze.py` stubs to `generate_mock_response()`.
 
 **To connect the model:**
 1. Place `.pt` file at `MODEL_PATH` (default: `<root>/models/squat_model.pt`)
@@ -35,14 +44,13 @@ The only remaining phase. `app/api/analyze.py` stubs to `generate_mock_response(
 3. Call `load_model()` in `main.py` lifespan
 4. Replace `raise NotImplementedError` in `analyze.py` with `return run_analysis(request.pose_sequence)`
 
-Model I/O contract: input = `pose_sequence` (List[List[JointData]]), output = dict matching `AnalyzeResponse` fields. See `frontend/API_SPEC.md`.
-
-**Gotcha:** PyTorch may need `weights_only=False` if the `.pt` was saved with `torch.save(model, path)` (full model, not state dict).
+Input = `pose_sequence` (List[List[JointData]]), output = dict matching `AnalyzeResponse`. See `frontend/API_SPEC.md`.
+**Gotcha:** PyTorch may need `weights_only=False` for full-model `.pt` files.
 
 ## Known limitations / gotchas
 
-- Batch mode startup is slow (~10 s) because it opens all 512 JSON files to read `frame_count`
-- Older session videos may be `.avi` (XVID codec) — some browsers won't play them; the `VideoPlayer` component handles this gracefully with a "No video" fallback
-- Live mode `GET /reps` always re-scans the directory (no cache) — fast since it's only the current session
-- The `GET /events` SSE queue has `maxsize=10`; events beyond that are dropped (single-tab kiosk assumption)
-- `npm install` must be run once after a fresh clone before `npm run dev` works
+- Batch mode startup is slow (~10 s) — opens all 512+ JSON files to read `frame_count`
+- Older videos may be `.avi` (XVID) — `VideoPlayer` shows "No video" fallback for unplayable formats
+- `output/live/` is created by the backend at startup; `front.jpg`/`side.jpg` only appear once `F_main.py` is running
+- SSE queue `maxsize=10`; events beyond that are dropped (single-tab kiosk assumption)
+- `npm install` must be run once after a fresh clone

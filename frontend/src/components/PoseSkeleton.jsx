@@ -10,19 +10,39 @@ const PREVIEW_LINE  = '#0891b2';
 
 function transformJoints(joints) {
   if (!joints?.length) return [];
-  const valid = joints.filter(j => j.x_3d_meters != null && j.y_3d_meters != null && j.z_3d_meters != null);
-  if (!valid.length) return [];
-  const xs = valid.map(j => j.x_3d_meters);
-  const ys = valid.map(j => j.y_3d_meters);
-  const zs = valid.map(j => j.z_3d_meters);
+
+  // Prefer metric 3D coords; fall back to normalised 2D when depth is absent.
+  // X is negated to match F_visualizer.py (-lm["x_3d"]) so the person faces
+  // the viewer correctly (person's left on display left).
+  const valid3d = joints.filter(j => j.x_3d_meters != null && j.y_3d_meters != null && j.z_3d_meters != null);
+  if (valid3d.length > 0) {
+    const xs = valid3d.map(j => -j.x_3d_meters);
+    const ys = valid3d.map(j => j.y_3d_meters);
+    const zs = valid3d.map(j => j.z_3d_meters);
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+    const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+    const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
+    return valid3d.map(j => ({
+      ...j,
+      tx:  -j.x_3d_meters - cx,
+      ty: -(j.y_3d_meters - cy),
+      tz: -(j.z_3d_meters - cz),
+    }));
+  }
+
+  // 2D fallback: x_norm / y_norm are always present, z = 0 (flat skeleton).
+  // Negate x for the same left-right orientation as the 3D path.
+  const valid2d = joints.filter(j => j.x_norm != null && j.y_norm != null);
+  if (!valid2d.length) return [];
+  const xs = valid2d.map(j => -j.x_norm);
+  const ys = valid2d.map(j => j.y_norm);
   const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
   const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
-  const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
-  return valid.map(j => ({
+  return valid2d.map(j => ({
     ...j,
-    tx: j.x_3d_meters - cx,
-    ty: -(j.y_3d_meters - cy),
-    tz: -(j.z_3d_meters - cz),
+    tx: -j.x_norm - cx,
+    ty: -(j.y_norm - cy),
+    tz: 0,
   }));
 }
 
@@ -71,6 +91,8 @@ export function PoseSkeleton({ poseFrame, heatmapFrame, previewMode = false }) {
       {POSE_CONNECTIONS.map(([a, b]) => {
         const ja = map[a]; const jb = map[b];
         if (!ja || !jb) return null;
+        // Skip connections where either endpoint has low visibility (matches F_visualizer.py threshold)
+        if (Math.min(ja.visibility ?? 1, jb.visibility ?? 1) < 0.4) return null;
         const sev = previewMode ? 0 : Math.max(heatmapFrame?.[a] ?? 0, heatmapFrame?.[b] ?? 0);
         const col = previewMode ? PREVIEW_LINE : severityToColor(sev);
         return (

@@ -1,6 +1,6 @@
 import { BackgroundCanvas } from './BackgroundCanvas';
 
-export function KioskLayout({ children }) {
+export function KioskLayout({ children, liveConnected }) {
   return (
     <div style={{
       width: '100vw', height: '100vh',
@@ -45,14 +45,18 @@ export function KioskLayout({ children }) {
 
         <div style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 11, color: '#334155',
+          fontSize: 11,
         }}>
           <div style={{
             width: 6, height: 6, borderRadius: '50%',
-            background: '#22c55e',
-            boxShadow: '0 0 8px #22c55e',
+            background: liveConnected ? '#22d3ee' : '#475569',
+            boxShadow: liveConnected ? '0 0 8px #22d3ee' : 'none',
+            animation: liveConnected ? 'pulse 2s ease-in-out infinite' : 'none',
+            transition: 'background 0.4s, box-shadow 0.4s',
           }} />
-          Guest Session
+          <span style={{ color: liveConnected ? '#67e8f9' : '#334155', transition: 'color 0.4s' }}>
+            {liveConnected ? 'LIVE · Squat to begin' : 'Connecting…'}
+          </span>
         </div>
       </header>
 

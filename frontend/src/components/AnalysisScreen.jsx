@@ -17,19 +17,34 @@ const LOADING_STEPS = [
 
 function deriveTransformed(poseFrame) {
   if (!poseFrame?.length) return [];
-  const valid = poseFrame.filter(j => j.x_3d_meters != null && j.y_3d_meters != null && j.z_3d_meters != null);
-  if (!valid.length) return [];
-  const xs = valid.map(j => j.x_3d_meters);
-  const ys = valid.map(j => j.y_3d_meters);
-  const zs = valid.map(j => j.z_3d_meters);
+
+  const valid3d = poseFrame.filter(j => j.x_3d_meters != null && j.y_3d_meters != null && j.z_3d_meters != null);
+  if (valid3d.length > 0) {
+    const xs = valid3d.map(j => -j.x_3d_meters);
+    const ys = valid3d.map(j => j.y_3d_meters);
+    const zs = valid3d.map(j => j.z_3d_meters);
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+    const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+    const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
+    return valid3d.map(j => ({
+      ...j,
+      tx:  -j.x_3d_meters - cx,
+      ty: -(j.y_3d_meters - cy),
+      tz: -(j.z_3d_meters - cz),
+    }));
+  }
+
+  const valid2d = poseFrame.filter(j => j.x_norm != null && j.y_norm != null);
+  if (!valid2d.length) return [];
+  const xs = valid2d.map(j => -j.x_norm);
+  const ys = valid2d.map(j => j.y_norm);
   const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
   const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
-  const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
-  return valid.map(j => ({
+  return valid2d.map(j => ({
     ...j,
-    tx: j.x_3d_meters - cx,
-    ty: -(j.y_3d_meters - cy),
-    tz: -(j.z_3d_meters - cz),
+    tx: -j.x_norm - cx,
+    ty: -(j.y_norm - cy),
+    tz: 0,
   }));
 }
 

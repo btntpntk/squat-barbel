@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
-from typing import List
+from typing import List, Optional
 
 from ..models.schemas import RepMeta
 from ..services import rep_store
@@ -10,8 +10,10 @@ router = APIRouter()
 
 
 @router.get("/reps", response_model=List[RepMeta])
-async def list_reps():
-    return rep_store.list_reps(MODE)
+async def list_reps(scope: Optional[str] = None):
+    # scope=all forces batch behaviour regardless of backend MODE
+    mode = "batch" if scope == "all" else MODE
+    return rep_store.list_reps(mode)
 
 
 @router.get("/reps/{rep_id}/pose")

@@ -95,7 +95,7 @@ function PreviewControls({ frameIndex, totalFrames, playing, onToggle, onScrub, 
   );
 }
 
-export function RepSelectScreen({ onAnalyze, onBack }) {
+export function RepSelectScreen({ onAnalyze, onBack, scope = null }) {
   const [reps, setReps]             = useState([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState(null);
@@ -108,10 +108,10 @@ export function RepSelectScreen({ onAnalyze, onBack }) {
 
   // Fetch rep list on mount
   useEffect(() => {
-    fetchReps()
+    fetchReps(scope)
       .then(data => { setReps(data); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, []);
+  }, [scope]);
 
   // Animation loop
   const totalFrames = selectedPose?.length ?? 0;

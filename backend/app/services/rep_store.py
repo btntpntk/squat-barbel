@@ -117,6 +117,8 @@ def get_pose(rep_id: str) -> list:
                 "x_3d_meters": joint.get("x_3d"),
                 "y_3d_meters": joint.get("y_3d"),
                 "z_3d_meters": joint.get("z_3d"),
+                "x_norm":      joint.get("x_norm"),
+                "y_norm":      joint.get("y_norm"),
                 "visibility":  joint.get("visibility", 1.0),
             })
         renamed.append(renamed_frame)
